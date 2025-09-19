@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/core/*": ["src/_core/*"],
+      "@/common/*": ["src/_common/*"],
+      "@/init/*": ["src/_init/*"],
+      "@/users/*": ["src/users/*"],
+      "@/movies/*": ["src/movies/*"],
+      "@/storage/*": ["src/storage/*"],
+      "@/integrations/*": ["src/integrations/*"],
+      "@/types/*": ["src/types/*"],
+      "@/tests/*": ["src/__tests__/*"]
+    }
+  },
+  "include": ["src/**/*", "src/types/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
