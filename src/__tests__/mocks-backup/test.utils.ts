@@ -44,55 +44,6 @@ export const mockSuperAdminData = {
   type: UserTypeEnum.superAdmin,
 };
 
-// Dados de teste para filmes
-export const mockMovieData = {
-  uuid: '123e4567-e89b-12d3-a456-426614174002',
-  title: 'Test Movie',
-  originalTitle: 'Test Movie Original',
-  language: 'English',
-  situation: MovieSituationEnum.released,
-  synopsis: 'A test movie for testing purposes',
-  popularity: 85,
-  votesQuantity: 1000,
-  ratingPercentage: 8.5,
-  trailerUrl: 'https://example.com/trailer',
-  posterUrl: 'https://example.com/poster.jpg',
-  budget: 1000000,
-  revenue: 5000000,
-  profit: 4000000,
-  releaseDate: new Date('2024-01-01T00:00:00.000Z'),
-  durationInMinutes: 120,
-  genre: ['Action', 'Adventure'],
-  posterUuid: '123e4567-e89b-12d3-a456-426614174003',
-  userUuid: mockUserData.uuid,
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-  deletedAt: null,
-};
-
-// Dados de teste para storage
-export const mockStorageData = {
-  uuid: '123e4567-e89b-12d3-a456-426614174003',
-  name: 'test-image.jpg',
-  key: 'profile-image/test-image.jpg',
-  mimetype: 'image/jpeg',
-  type: 'profile-image',
-  url: 'https://example.com/test-image.jpg',
-  createdAt: new Date('2024-01-01T00:00:00.000Z'),
-  updatedAt: new Date('2024-01-01T00:00:00.000Z'),
-  deletedAt: null,
-};
-
-// Mock de arquivo para upload
-export const mockFile = {
-  fieldname: 'file',
-  originalname: 'test-image.jpg',
-  encoding: '7bit',
-  mimetype: 'image/jpeg',
-  buffer: Buffer.from('test-image-content'),
-  size: 1024,
-} as Express.Multer.File;
-
 // Helper para limpar mocks
 export const clearAllMocks = () => {
   jest.clearAllMocks();

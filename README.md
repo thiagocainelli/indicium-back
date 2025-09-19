@@ -1,8 +1,8 @@
-# 🚀 Indicium Backend - Sistema de Gestão de Filmes
+# 🚀 Indicium Backend
 
 ## 📋 Descrição
 
-Backend robusto e escalável para sistema de gestão de filmes, desenvolvido com arquitetura limpa, TypeScript e Node.js. O sistema inclui autenticação JWT, gestão de usuários, catálogo de filmes, sistema de storage com Cloudflare R2, envio de e-mails via Resend, e sistema de cron para notificações automáticas.
+Backend robusto e escalável, desenvolvido com arquitetura limpa, TypeScript e Node.js. O sistema inclui autenticação JWT, gestão de usuários.
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -82,12 +82,6 @@ src/
 │   └── utils/              # Funções utilitárias
 ├── _init/                   # Inicialização do sistema
 ├── users/                   # Módulo de usuários
-├── movies/                  # Módulo de filmes
-├── storage/                 # Módulo de storage
-├── integrations/            # Integrações externas
-│   ├── cron/               # Sistema de cron jobs
-│   ├── smtpEmail/          # Serviço de e-mail
-│   └── s3-digitalOcean/    # Integração Cloudflare R2
 └── types/                   # Definições de tipos TypeScript
 ```
 
@@ -210,39 +204,6 @@ npm run test:ci
 - **Tipos de usuário** (superAdmin, users)
 - **Soft delete** para usuários
 
-### **🎬 Gestão de Filmes**
-
-- **CRUD completo** de filmes
-- **Upload de posters** via Cloudflare R2
-- **Validação de dados** com decorators customizados
-- **Sistema de avaliações** e popularidade
-- **Gêneros múltiplos** por filme
-- **Situação do filme** (upcoming, released, canceled)
-- **Metadados completos** (orçamento, receita, lucro, duração)
-
-### **💾 Sistema de Storage**
-
-- **Upload de arquivos** (imagens, documentos)
-- **Integração Cloudflare R2** (compatível S3)
-- **CDN automático** para arquivos
-- **Gestão de tipos MIME**
-- **Soft delete** para arquivos
-
-### **📧 Sistema de E-mails**
-
-- **Integração Resend** para envio de e-mails
-- **Templates HTML responsivos** e estilizados
-- **Sistema de cron** para notificações automáticas
-- **Notificações diárias** de lançamentos de filmes
-
-### **⏰ Sistema de Cron**
-
-- **Agendamento automático** de tarefas
-- **Notificações diárias** às 10:45 AM
-- **Envio em lote** para todos os usuários
-- **Logs detalhados** de execução
-- **Controle via API** (start, stop, restart)
-
 ### **🔍 Validação & DTOs**
 
 - **Sistema de decorators** para validação
@@ -282,41 +243,11 @@ npm run test:ci
 - `PUT /api/v1/users/:id` - Atualizar usuário
 - `DELETE /api/v1/users/:id` - Deletar usuário
 
-### **Filmes**
-
-- `GET /api/v1/movies` - Listar filmes com filtros
-- `POST /api/v1/movies` - Criar filme
-- `GET /api/v1/movies/:id` - Buscar filme por ID
-- `PUT /api/v1/movies/:id` - Atualizar filme
-- `DELETE /api/v1/movies/:id` - Deletar filme
-- `PATCH /api/v1/movies/:id/rating` - Atualizar avaliação
-
-### **Storage**
-
-- `POST /api/v1/storage/upload` - Upload de arquivo
-- `GET /api/v1/storage/:id` - Buscar arquivo por ID
-- `DELETE /api/v1/storage/:id` - Deletar arquivo
-
-### **Cron (Controle)**
-
-- `GET /api/v1/cron/status` - Status dos crons
-- `POST /api/v1/cron/test-movie-notifications` - Testar notificações
-- `POST /api/v1/cron/stop` - Parar todos os crons
-- `POST /api/v1/cron/restart` - Reiniciar todos os crons
-
 ## 📊 Banco de Dados
 
 ### **Modelos Principais**
 
 - **Users** - Usuários do sistema
-- **Movies** - Catálogo de filmes
-- **Storage** - Arquivos e mídia
-
-### **Relacionamentos**
-
-- Usuários podem criar filmes
-- Filmes podem ter posters (via Storage)
-- Usuários podem ter imagens de perfil (via Storage)
 
 ### **Índices**
 
