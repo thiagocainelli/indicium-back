@@ -1,0 +1,75 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../prisma-outputs/postgres-client"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  superAdmin
+  users
+}
+
+model Users {
+  uuid         String    @id @default(uuid()) @db.Uuid
+  name         String?   @db.VarChar(250)
+  email        String?   @unique @db.VarChar(250)
+  password     String?
+  type         UserType? @default(users)
+  profileImage String?
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  @@index([type])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+/// SRAG core facts aggregated from OpenDataSUS CSVs
+model SRAG {
+  uuid        String   @id @default(uuid()) @db.Uuid
+
+  // Basic identifiers
+  nuNotific   String?  @db.VarChar(32)
+
+  // Dates
+  dtNotific   DateTime?
+  dtSinPri    DateTime?
+
+  // Geography (residence)
+  sgUf        String?  @db.VarChar(2)
+  coMunRes    String?  @db.VarChar(10)
+
+  // Demographics
+  csSexo      String?  @db.VarChar(1)
+  idadeNumerica Int?
+
+  // Clinical outcomes
+  evolucao    Int?
+  uti         Int?
+  dtEntUti    DateTime?
+  dtSaiUti    DateTime?
+
+  // Vaccination (COVID)
+  vacinaCov   Int?
+  dose1Cov    DateTime?
+  dose2Cov    DateTime?
+  doseRef     DateTime?
+
+  createdAt   DateTime @default(now())
+
+  @@index([dtSinPri])
+  @@index([sgUf, dtSinPri])
+  @@index([coMunRes, dtSinPri])
+  @@index([evolucao])
+  @@index([uti])
+  @@map("srag")
+}
