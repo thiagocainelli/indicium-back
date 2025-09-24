@@ -30,7 +30,6 @@ export class MetricsService {
       });
     }
 
-    // Buscar dados do período atual
     const currentData = await prisma.sRAG.findMany({
       where: whereClause,
       select: {
@@ -41,7 +40,6 @@ export class MetricsService {
       },
     });
 
-    // Buscar dados do período anterior para calcular taxa de aumento
     const previousPeriodWhere = { ...whereClause };
     previousPeriodWhere.AND = [];
 
@@ -73,18 +71,13 @@ export class MetricsService {
       },
     });
 
-    // Calcular métricas
     const totalCases = currentData.length;
     const totalDeaths = currentData.filter((c) => c.evolucao === 2).length;
     const totalIcu = currentData.filter((c) => c.uti === 1).length;
     const totalVaccinated = currentData.filter((c) => c.vacinaCov === 1).length;
 
     const previousCases = previousData.length;
-    const previousDeaths = previousData.filter((c) => c.evolucao === 2).length;
-    const previousIcu = previousData.filter((c) => c.uti === 1).length;
-    const previousVaccinated = previousData.filter((c) => c.vacinaCov === 1).length;
 
-    // Calcular taxas
     const caseIncreaseRate =
       previousCases > 0 ? ((totalCases - previousCases) / previousCases) * 100 : 0;
 

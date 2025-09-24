@@ -98,7 +98,6 @@ export class InitService {
     if (!value) return null;
     const v = value.trim();
     if (!v) return null;
-    // Expecting ISO yyyy-mm-dd
     const d = new Date(v);
     return isNaN(d.getTime()) ? null : d;
   }

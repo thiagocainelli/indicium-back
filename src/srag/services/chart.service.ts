@@ -4,141 +4,171 @@ import { SragChartFilterDto, SragChartDataDto } from '../dtos/sragChart.dto';
 
 export class ChartService {
   static async getChartData(filters: SragChartFilterDto): Promise<SragChartDataDto[]> {
-    const { period = 'monthly', region, startDate, endDate, groupBy = 'state' } = filters;
+    try {
+      const { period = 'monthly', region, startDate, endDate, groupBy = 'state' } = filters;
 
-    const whereClause: Prisma.SRAGWhereInput = {
-      AND: [],
-    };
-    whereClause.AND = [];
+      const whereClause: Prisma.SRAGWhereInput = {
+        AND: [],
+      };
 
-    if (region) {
-      if (groupBy == 'state') {
+      whereClause.AND = [];
+
+      if (region) {
+        if (groupBy === 'state') {
+          whereClause.AND.push({
+            sgUf: {
+              equals: region,
+              mode: 'insensitive',
+            },
+          });
+        } else {
+          whereClause.AND.push({
+            coMunRes: {
+              equals: region,
+              mode: 'insensitive',
+            },
+          });
+        }
+      }
+
+      if (startDate && endDate) {
+        const newStartDate = new Date(startDate);
+        const newEndDate = new Date(endDate);
+        newStartDate.setHours(0, 0, 0, 0);
+        newEndDate.setHours(23, 59, 59, 999);
+
         whereClause.AND.push({
-          sgUf: region,
-        });
-      } else {
-        whereClause.AND.push({
-          coMunRes: region,
+          dtSinPri: {
+            gte: newStartDate,
+            lte: newEndDate,
+          },
         });
       }
-    }
 
-    if (startDate && endDate) {
-      const newStartDate = new Date(startDate);
-      const newEndDate = new Date(endDate);
-      newStartDate.setHours(0, 0, 0, 0);
-      newEndDate.setHours(23, 59, 59, 999);
+      if (whereClause.AND.length > 0) {
+        whereClause.AND = whereClause.AND;
+      }
 
-      whereClause.AND.push({
-        dtSinPri: {
-          gte: newStartDate,
-          lte: newEndDate,
+      const rawData = await prisma.sRAG.findMany({
+        where: whereClause,
+        select: {
+          dtSinPri: true,
+          evolucao: true,
+          uti: true,
+          vacinaCov: true,
+          sgUf: true,
+          coMunRes: true,
         },
+        take: 10000,
       });
+
+      const groupedData = this.groupDataByPeriod(rawData, period, groupBy);
+
+      return groupedData;
+    } catch (error) {
+      console.error('Error in ChartService.getChartData:', error);
+      throw new Error('Failed to fetch chart data');
     }
-
-    // Buscar dados brutos
-    const rawData = await prisma.sRAG.findMany({
-      where: whereClause,
-      select: {
-        dtSinPri: true,
-        evolucao: true,
-        uti: true,
-        vacinaCov: true,
-        sgUf: true,
-        coMunRes: true,
-      },
-    });
-
-    // Agrupar dados por período
-    const groupedData = this.groupDataByPeriod(rawData, period, groupBy);
-
-    return groupedData;
   }
 
   private static groupDataByPeriod(
-    data: any[],
+    data: Array<{
+      dtSinPri: Date | null;
+      evolucao: number | null;
+      uti: number | null;
+      vacinaCov: number | null;
+      sgUf: string | null;
+      coMunRes: string | null;
+    }>,
     period: string,
     groupBy: string,
   ): SragChartDataDto[] {
     const groups: { [key: string]: SragChartDataDto } = {};
 
-    data.forEach((item) => {
-      if (!item.dtSinPri) return;
+    for (const item of data) {
+      if (!item.dtSinPri) continue;
 
-      const date = new Date(item.dtSinPri);
-      let periodKey: string;
-      let regionKey: string;
+      try {
+        const date = new Date(item.dtSinPri);
 
-      // Determinar chave do período
-      switch (period) {
-        case 'daily':
-          periodKey = date.toISOString().split('T')[0];
-          break;
-        case 'monthly':
-          periodKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          break;
-        case 'yearly':
-          periodKey = String(date.getFullYear());
-          break;
-        default:
-          periodKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      }
+        if (isNaN(date.getTime())) continue;
 
-      // Determinar chave da região
-      if (groupBy === 'state') {
-        regionKey = item.sgUf || 'N/A';
-      } else {
-        regionKey = item.coMunRes || 'N/A';
-      }
+        let periodKey: string;
+        let regionKey: string;
 
-      const key = `${periodKey}-${regionKey}`;
-
-      if (!groups[key]) {
-        groups[key] = {
-          date:
-            period === 'daily'
-              ? date
-              : new Date(periodKey + (period === 'monthly' ? '-01' : '-01-01')),
-          cases: 0,
-          deaths: 0,
-          icuOccupancy: 0,
-          vaccinations: 0,
-          region: regionKey,
-        };
-      }
-
-      // Contar casos
-      if (groups[key].cases) {
-        groups[key].cases++;
-      }
-
-      // Contar óbitos
-      if (item.evolucao === 2) {
-        if (groups[key].deaths) {
-          groups[key].deaths++;
+        switch (period) {
+          case 'daily':
+            periodKey = date.toISOString().split('T')[0];
+            break;
+          case 'monthly':
+            periodKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            break;
+          case 'yearly':
+            periodKey = String(date.getFullYear());
+            break;
+          default:
+            periodKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         }
-      }
 
-      // Contar UTI
-      if (item.uti === 1) {
-        if (groups[key].icuOccupancy) {
-          groups[key].icuOccupancy++;
+        if (groupBy === 'state') {
+          regionKey = item.sgUf || 'N/A';
+        } else {
+          regionKey = item.coMunRes || 'N/A';
         }
-      }
 
-      // Contar vacinações
-      if (item.vacinaCov === 1) {
-        if (groups[key].vaccinations) {
-          groups[key].vaccinations++;
+        const key = `${periodKey}-${regionKey}`;
+
+        if (!groups[key]) {
+          groups[key] = {
+            date: this.createDateFromPeriodKey(period, periodKey),
+            cases: 0,
+            deaths: 0,
+            icuOccupancy: 0,
+            vaccinations: 0,
+            region: regionKey,
+          };
         }
-      }
-    });
 
-    // Converter para array e ordenar por data
+        const currentGroup = groups[key] as SragChartDataDto;
+
+        currentGroup.cases = (currentGroup.cases || 0) + 1;
+
+        if (item.evolucao === 2) {
+          currentGroup.deaths = (currentGroup.deaths || 0) + 1;
+        }
+
+        if (item.uti === 1) {
+          currentGroup.icuOccupancy = (currentGroup.icuOccupancy || 0) + 1;
+        }
+
+        if (item.vacinaCov === 1) {
+          currentGroup.vaccinations = (currentGroup.vaccinations || 0) + 1;
+        }
+      } catch (error) {
+        console.warn('Error processing item:', error, item);
+        continue;
+      }
+    }
+
     return Object.values(groups).sort(
       (a: SragChartDataDto, b: SragChartDataDto) =>
         new Date(a.date).getTime() - new Date(b.date).getTime(),
-    ) as SragChartDataDto[];
+    );
+  }
+
+  private static createDateFromPeriodKey(period: string, periodKey: string): Date {
+    try {
+      if (period === 'daily') {
+        return new Date(periodKey);
+      } else if (period === 'monthly') {
+        return new Date(periodKey + '-01');
+      } else if (period === 'yearly') {
+        return new Date(periodKey + '-01-01');
+      }
+      return new Date(periodKey + '-01');
+    } catch (error) {
+      console.warn('Error creating date from period key:', periodKey);
+      return new Date();
+    }
   }
 }
