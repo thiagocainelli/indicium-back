@@ -55,7 +55,7 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files for dependency installation
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install dependencies with optimizations
 RUN pnpm install --frozen-lockfile --prod=false
