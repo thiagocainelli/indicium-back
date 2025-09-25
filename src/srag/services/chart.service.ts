@@ -1,6 +1,7 @@
 import { Prisma } from 'prisma-outputs/postgres-client';
 import prisma from '../../_core/prisma.pg';
 import { SragChartFilterDto, SragChartDataDto } from '../dtos/sragChart.dto';
+import { HttpException } from '@/_common/exceptions/httpException';
 
 export class ChartService {
   static async getChartData(filters: SragChartFilterDto): Promise<SragChartDataDto[]> {
@@ -66,8 +67,7 @@ export class ChartService {
 
       return groupedData;
     } catch (error) {
-      console.error('Error in ChartService.getChartData:', error);
-      throw new Error('Failed to fetch chart data');
+      throw new HttpException(400, 'Erro ao buscar dados do gráfico');
     }
   }
 
@@ -167,7 +167,6 @@ export class ChartService {
       }
       return new Date(periodKey + '-01');
     } catch (error) {
-      console.warn('Error creating date from period key:', periodKey);
       return new Date();
     }
   }

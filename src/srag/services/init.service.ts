@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'fast-csv';
 import prisma from '../../_core/prisma.pg';
+import { HttpException } from '@/_common/exceptions/httpException';
 
 type SragCsvRow = Record<string, string | undefined>;
 
@@ -9,13 +10,17 @@ const CSV_DIR = path.resolve(process.cwd(), 'csv-data');
 
 export class InitService {
   static async initIngestionIfEmpty(): Promise<void> {
-    const count = await prisma.sRAG.count();
-    if (count > 0) {
-      console.info('SRAG table already populated. Skipping ingestion.');
-      return;
+    try {
+      const count = await prisma.sRAG.count();
+      if (count > 0) {
+        console.info('SRAG table already populated. Skipping ingestion.');
+        return;
+      }
+      console.info('SRAG table empty. Starting ingestion from csv-data...');
+      await InitService.ingestAllCsvFiles();
+    } catch (error) {
+      throw new HttpException(400, 'Erro ao iniciar ingestão de CSV');
     }
-    console.info('SRAG table empty. Starting ingestion from csv-data...');
-    await InitService.ingestAllCsvFiles();
   }
 
   static async ingestAllCsvFiles(): Promise<{ files: string[]; inserted: number } | void> {
@@ -35,8 +40,7 @@ export class InitService {
       console.info(`Total records inserted: ${totalInserted}`);
       return { files: csvFiles, inserted: totalInserted };
     } catch (error) {
-      console.error('Error during CSV ingestion:', error);
-      throw error;
+      throw new HttpException(400, 'Erro ao ingerir CSV');
     }
   }
 
@@ -56,7 +60,6 @@ export class InitService {
           const res = await prisma.sRAG.createMany({ data, skipDuplicates: true });
           inserted += res.count;
         } catch (err) {
-          console.error('Error inserting batch:', err);
           reject(err);
         }
       };
