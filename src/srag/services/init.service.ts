@@ -19,28 +19,53 @@ export class InitService {
       console.info('SRAG table empty. Starting ingestion from csv-data...');
       await InitService.ingestAllCsvFiles();
     } catch (error) {
-      throw new HttpException(400, 'Erro ao iniciar ingestão de CSV');
+      console.error('Error during CSV ingestion:', error);
+      throw new HttpException(
+        400,
+        `Erro ao iniciar ingestão de CSV: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+      );
     }
   }
 
   static async ingestAllCsvFiles(): Promise<{ files: string[]; inserted: number } | void> {
     try {
+      // Verificar se o diretório existe
+      if (!fs.existsSync(CSV_DIR)) {
+        throw new Error(`Diretório CSV não encontrado: ${CSV_DIR}`);
+      }
+
       const files = await fs.promises.readdir(CSV_DIR);
       const csvFiles = files.filter((f) => f.toLowerCase().endsWith('.csv'));
+
+      if (csvFiles.length === 0) {
+        throw new Error('Nenhum arquivo CSV encontrado no diretório');
+      }
+
+      console.info(`Encontrados ${csvFiles.length} arquivos CSV para processar`);
 
       let totalInserted = 0;
 
       for (const fileName of csvFiles) {
-        const filePath = path.join(CSV_DIR, fileName);
-        const inserted = await this.ingestOneFile(filePath);
-        totalInserted += inserted;
-        console.info(`Processed ${fileName}: ${inserted} records inserted`);
+        try {
+          const filePath = path.join(CSV_DIR, fileName);
+          console.info(`Processando arquivo: ${fileName}`);
+          const inserted = await this.ingestOneFile(filePath);
+          totalInserted += inserted;
+          console.info(`Processed ${fileName}: ${inserted} records inserted`);
+        } catch (fileError) {
+          console.error(`Erro ao processar arquivo ${fileName}:`, fileError);
+          // Continuar com os outros arquivos
+        }
       }
 
       console.info(`Total records inserted: ${totalInserted}`);
       return { files: csvFiles, inserted: totalInserted };
     } catch (error) {
-      throw new HttpException(400, 'Erro ao ingerir CSV');
+      console.error('Error in ingestAllCsvFiles:', error);
+      throw new HttpException(
+        400,
+        `Erro ao ingerir CSV: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+      );
     }
   }
 
@@ -55,7 +80,10 @@ export class InitService {
       const flushBatch = async () => {
         if (rows.length === 0) return;
         const batch = rows.splice(0, rows.length);
-        const data = batch.map(this.mapCsvRowToPrismaCreate);
+
+        // ✅ manter contexto
+        const data = batch.map((row) => InitService.mapCsvRowToPrismaCreate(row));
+
         try {
           const res = await prisma.sRAG.createMany({ data, skipDuplicates: true });
           inserted += res.count;
@@ -116,20 +144,20 @@ export class InitService {
   private static mapCsvRowToPrismaCreate(row: SragCsvRow) {
     return {
       nuNotific: row['NU_NOTIFIC'] || null,
-      dtNotific: this.parseDate(row['DT_NOTIFIC']) || null,
-      dtSinPri: this.parseDate(row['DT_SIN_PRI']) || null,
+      dtNotific: InitService.parseDate(row['DT_NOTIFIC']) || null,
+      dtSinPri: InitService.parseDate(row['DT_SIN_PRI']) || null,
       sgUf: row['SG_UF'] || row['SG_UF_NOT'] || null,
       coMunRes: row['CO_MUN_RES'] || null,
       csSexo: row['CS_SEXO'] || null,
-      idadeNumerica: this.parseIntOrNull(row['NU_IDADE_N']),
-      evolucao: this.parseIntOrNull(row['EVOLUCAO']),
-      uti: this.parseIntOrNull(row['UTI']),
-      dtEntUti: this.parseDate(row['DT_ENTUTI']) || null,
-      dtSaiUti: this.parseDate(row['DT_SAIDUTI']) || null,
-      vacinaCov: this.parseIntOrNull(row['VACINA_COV']),
-      dose1Cov: this.parseDate(row['DOSE_1_COV']) || null,
-      dose2Cov: this.parseDate(row['DOSE_2_COV']) || null,
-      doseRef: this.parseDate(row['DOSE_REF']) || null,
+      idadeNumerica: InitService.parseIntOrNull(row['NU_IDADE_N']),
+      evolucao: InitService.parseIntOrNull(row['EVOLUCAO']),
+      uti: InitService.parseIntOrNull(row['UTI']),
+      dtEntUti: InitService.parseDate(row['DT_ENTUTI']) || null,
+      dtSaiUti: InitService.parseDate(row['DT_SAIDUTI']) || null,
+      vacinaCov: InitService.parseIntOrNull(row['VACINA_COV']),
+      dose1Cov: InitService.parseDate(row['DOSE_1_COV']) || null,
+      dose2Cov: InitService.parseDate(row['DOSE_2_COV']) || null,
+      doseRef: InitService.parseDate(row['DOSE_REF']) || null,
     };
   }
 }
