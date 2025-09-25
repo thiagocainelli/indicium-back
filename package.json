@@ -10,7 +10,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node -r ./tsconfig-paths-bootstrap.js src/server.ts",
-    "build": "tsc && tsc-alias",
+    "build": "prisma generate --schema=prisma/postgres/schema.prisma && tsc && tsc-alias",
     "start": "node -r tsconfig-paths/register dist/server.js",
     "generate": "prisma generate --schema=prisma/postgres/schema.prisma",
     "migrate:dev": "prisma migrate dev --schema=prisma/postgres/schema.prisma",
