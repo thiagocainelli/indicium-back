@@ -3,7 +3,7 @@ services:
     name: indicium-back-updated
     runtime: node
     plan: free
-    buildCommand: 'yarn install && yarn run build'
+    buildCommand: 'yarn install --frozen-lockfile --production=false && yarn run build'
     startCommand: 'yarn migrate:prod && yarn start'
     envVars:
       - key: DATABASE_URL

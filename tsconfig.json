@@ -14,19 +14,18 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "typeRoots": ["./src/types", "./node_modules/@types"],
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
       "@/core/*": ["src/_core/*"],
       "@/common/*": ["src/_common/*"],
       "@/init/*": ["src/_init/*"],
       "@/users/*": ["src/users/*"],
-      "@/movies/*": ["src/movies/*"],
-      "@/storage/*": ["src/storage/*"],
-      "@/integrations/*": ["src/integrations/*"],
+      "@/srag/*": ["src/srag/*"],
       "@/types/*": ["src/types/*"],
       "@/tests/*": ["src/__tests__/*"]
-    }
+    },
+    "plugins": [{ "transform": "tsc-alias" }]
   },
   "include": ["src/**/*", "src/types/**/*"],
   "exclude": ["node_modules", "dist"]
