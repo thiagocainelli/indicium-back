@@ -160,32 +160,6 @@ docker build -t indicium-back .
 docker run -p 8080:8080 indicium-back
 ```
 
-## 🧪 Testes
-
-### **Executar Todos os Testes**
-
-```bash
-pnpm test
-```
-
-### **Testes em Modo Watch**
-
-```bash
-pnpm test:watch
-```
-
-### **Cobertura de Testes**
-
-```bash
-pnpm test:coverage
-```
-
-### **Testes em CI**
-
-```bash
-pnpm test:ci
-```
-
 ## 📚 Funcionalidades do Sistema
 
 ### **🔐 Autenticação & Usuários**
@@ -435,27 +409,3 @@ Este projeto é privado e pertence à **Indicium Healthcare**.
 **Thiago Cainelli** - Desenvolvedor Backend Full-Stack
 
 ---
-
-## 🏥 Sobre o Sistema de Monitoramento de Saúde
-
-Este sistema foi desenvolvido como parte do desafio técnico da Indicium Healthcare para monitoramento de surtos de doenças, especificamente SRAG (Síndrome Respiratória Aguda Grave). O sistema processa dados do OpenDataSUS e fornece:
-
-- **Dashboard em tempo real** com métricas críticas
-- **Visualizações gráficas** para análise temporal e geográfica
-- **API robusta** para integração com frontends
-- **Processamento eficiente** de grandes volumes de dados
-- **Arquitetura escalável** para crescimento futuro
-
-### **Fontes de Dados**
-
-- **OpenDataSUS**: Dados oficiais de SRAG do Ministério da Saúde
-- **CSV Processing**: Importação automática de arquivos CSV
-- **Real-time Updates**: Processamento em tempo real de novos dados
-
-### **Casos de Uso**
-
-- Monitoramento de surtos em tempo real
-- Análise de tendências temporais
-- Comparação entre regiões
-- Avaliação de efetividade de vacinação
-- Suporte à tomada de decisões em saúde pública
