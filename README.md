@@ -52,12 +52,6 @@ Backend robusto e escalável para sistema de monitoramento de saúde, desenvolvi
 - **Prettier** (^3.6.1) - Formatador de código
 - **ts-node** (^10.9.2) - Execução TypeScript em desenvolvimento
 
-### **Containerização**
-
-- **Docker** - Containerização da aplicação
-- **Node.js 22-slim** - Imagem base otimizada
-- **Multi-stage build** otimizado
-
 ## 🏗️ Arquitetura do Projeto
 
 ```
@@ -151,13 +145,6 @@ pnpm dev
 ```bash
 pnpm build
 pnpm start
-```
-
-#### **Docker**
-
-```bash
-docker build -t indicium-back .
-docker run -p 8080:8080 indicium-back
 ```
 
 ## 📚 Funcionalidades do Sistema
@@ -301,48 +288,6 @@ Sistema de decorators personalizado que combina:
 - Configuração flexível por campo
 
 ## 🚀 Deploy
-
-### **Docker**
-
-```bash
-# Build da imagem
-docker build -t indicium-back .
-
-# Execução com variáveis de ambiente
-docker run -d -p 8080:8080 \
-  -e DATABASE_URL="your-database-url" \
-  -e JWT_SECRET="your-jwt-secret" \
-  --name indicium-back \
-  indicium-back
-```
-
-### **Docker Compose (Recomendado)**
-
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - '8080:8080'
-    environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/db
-      - JWT_SECRET=your-secret
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=indicium
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-```
 
 ### **Variáveis de Produção**
 
