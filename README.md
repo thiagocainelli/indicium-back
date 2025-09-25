@@ -4,6 +4,11 @@
 
 Backend robusto e escalável para sistema de monitoramento de saúde, desenvolvido com arquitetura limpa, TypeScript e Node.js. O sistema inclui autenticação JWT, gestão de usuários e monitoramento de dados de SRAG (Síndrome Respiratória Aguda Grave) com métricas e visualizações em tempo real.
 
+## 🛠️ Deploy
+- **API** - Feito pelo Render (https://render.com) - URL: https://indicium-back-updated.onrender.com
+- **Banco de Dados** - Feito pelo Neom (https://neon.com) 
+**Os arquivos .csv com os dados eram muito superiores ao limite aceitável de tamanho no Neon. Portanto foi feito só do ano de 2019 e 2020. Não foi possível popular o banco de dados até 2025.**
+
 ## 🛠️ Tecnologias Utilizadas
 
 ### **Core Technologies**
