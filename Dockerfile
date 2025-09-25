@@ -82,7 +82,7 @@ FROM base AS prod-deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # Install only production dependencies
 RUN pnpm install --frozen-lockfile --prod=true
