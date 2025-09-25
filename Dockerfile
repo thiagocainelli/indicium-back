@@ -58,7 +58,7 @@ WORKDIR /app
 COPY package.json ./
 
 # Install dependencies with optimizations
-RUN pnpm install --frozen-lockfile --prod=false
+RUN pnpm install --no-frozen-lockfile --prod=false
 
 # ===========================================
 # Stage 3: Build Stage
@@ -85,7 +85,7 @@ WORKDIR /app
 COPY package.json ./
 
 # Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod=true
+RUN pnpm install --no-frozen-lockfile --prod=true
 
 # ===========================================
 # Stage 5: Production Image
